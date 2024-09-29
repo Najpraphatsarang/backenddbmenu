@@ -1,0 +1,61 @@
+// นี่คือไฟล์ Prisma schema ของคุณ
+// เรียนรู้เพิ่มเติมเกี่ยวกับมันได้ที่ docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = "file:./dev.db"
+}
+
+model User {
+  id       Int     @id @default(autoincrement())
+  username String  @unique
+  password String
+  stores   Store[]
+  branch   Branch?  @relation(fields: [branchId], references: [id])
+  branchId Int?
+}
+
+model Store {
+  id      Int    @id @default(autoincrement())
+  name    String
+  owner   User   @relation(fields: [ownerId], references: [id])
+  ownerId Int
+}
+
+model Branch {
+  id     Int    @id @default(autoincrement())
+  name   String
+  staffs User[]
+}
+
+model Menu {
+  id         Int           @id @default(autoincrement())
+  name       String
+  price      Float
+  image      String
+  maxAmount  Float         @default(0)
+  isActive   Boolean       @default(true)
+  packageMenus PackageMenu[]
+}
+
+model Package {
+  id          Int          @id @default(autoincrement())
+  name        String
+  type        String
+  startPrice  Float
+  isActive    Boolean      @default(true)
+  packageMenu PackageMenu[]
+}
+
+model PackageMenu {
+  menu      Menu    @relation(fields: [menuId], references: [id])
+  menuId    Int
+  package   Package @relation(fields: [packageId], references: [id])
+  packageId Int
+
+  @@id([menuId, packageId])
+}
